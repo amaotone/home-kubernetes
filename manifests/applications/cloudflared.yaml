@@ -8,7 +8,7 @@ spec:
   source:
     repoURL: https://github.com/amaotone/home-kubernetes.git
     targetRevision: HEAD
-    path: manifests/applications
+    path: manifests/cloudflared
   destination:
     server: https://kubernetes.default.svc
     namespace: cloudflared
