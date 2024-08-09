@@ -1,6 +1,14 @@
 # おうち Kubernetes
 
-## Usage
+## Setup
+
+ArgoCD 自体のデプロイ
+
+```bash
+$ kubectl apply -n argocd -f https://raw.githubusercontent.com/argoproj/argo-cd/stable/manifests/install.yaml
+```
+
+ArgoCD の UI から `manifests/applications/root.yaml` をデプロイする
 
 ## TODO
 
@@ -9,7 +17,7 @@
   - [x] Cloudflare Tunnels 経由でアクセス
   - [x] App of Apps パターンの利用
 - [x] SealedSecrets を導入する
-- [ ] cloudflared をクラスタに載せる
+- [x] cloudflared をクラスタに載せる
 - [ ] クラスタのモニタリング
   - [ ] Prometheus + Grafana のデプロイ
   - [ ] Cloudflare Tunnels 経由で Grafana にアクセス
