@@ -1,10 +1,10 @@
 {
   $schema: "https://docs.renovatebot.com/renovate-schema.json",
   extends: ["config:recommended"],
-  kubernetes: {
-    fileMatch: "^manifests/.*\\.yaml$",
-  },
   argocd: {
     fileMatch: "^manifests/applications/.*\\.yaml$",
+  },
+  kubernetes: {
+    fileMatch: "^manifests/.*\\.yaml$",
   },
 }
