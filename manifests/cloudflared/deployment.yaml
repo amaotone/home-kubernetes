@@ -1,0 +1,27 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: cloudflared
+  namespace: argocd
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: cloudflared
+  template:
+    metadata:
+      labels:
+        app: cloudflared
+    spec:
+      containers:
+      - name: cloudflared
+        image: cloudflare/cloudflared:latest
+        command: ["cloudflared"]
+        args:
+          - "tunnel"
+          - "run"
+          - "--token"
+          - "$(CLOUDFLARE_TUNNEL_TOKEN)"
+        envFrom:
+          - secretRef:
+              name: CLOUDFLARE_TUNNEL_TOKEN
