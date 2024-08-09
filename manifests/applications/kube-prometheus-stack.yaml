@@ -9,6 +9,12 @@ spec:
     repoURL: https://prometheus-community.github.io/helm-charts
     chart: kube-prometheus-stack
     targetRevision: 61.7.2
+  helm:
+    valueObject:
+      prometheus-node-exporter:
+        service:
+          port: 9101
+          targetPort: 9101
   destination:
     server: https://kubernetes.default.svc
     namespace: monitoring
