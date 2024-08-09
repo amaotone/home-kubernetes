@@ -4,4 +4,7 @@
   kubernetes: {
     fileMatch: "^manifests/.*\\.yaml$",
   },
+  argocd: {
+    fileMatch: "^manifests/applications/.*\\.yaml$",
+  },
 }
