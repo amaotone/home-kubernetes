@@ -22,6 +22,9 @@ spec:
           - "run"
           - "--token"
           - "$(CLOUDFLARE_TUNNEL_TOKEN)"
-        envFrom:
-          - secretRef:
-              name: CLOUDFLARE_TUNNEL_TOKEN
+        env:
+          - name: CLOUDFLARE_TUNNEL_TOKEN
+            valueFrom:
+              secretKeyRef:
+                name: cloudflare-tunnel-token
+                key: token

@@ -23,3 +23,6 @@ kubeconfig
 
 # Temporary files
 *.tmp
+
+# secret
+*.secret.yaml
