@@ -2,7 +2,7 @@ apiVersion: argoproj.io/v1alpha1
 kind: Application
 metadata:
   name: cloudflared
-  namespace: argocd
+  namespace: cloudflared
 spec:
   project: default
   source:
