@@ -1,11 +1,20 @@
 import os
+
+from anniversary import create_anniversary_blocks
+from blockkit import Message
 from slack_sdk import WebClient
-from dotenv import load_dotenv
 
-load_dotenv()   
+SLACK_BOT_TOKEN = os.getenv("SLACK_BOT_TOKEN")
+CHANNEL_ID = os.getenv("SLACK_CHANNEL_ID")
+client = WebClient(token=SLACK_BOT_TOKEN)
 
-slack_token = os.getenv("SLACK_BOT_TOKEN")
-channel_id = os.getenv("SLACK_CHANNEL_ID")
-client = WebClient(token=slack_token)
 
-client.chat_postMessage(channel=channel_id, text="Hello from Python!")
+def send_message():
+    blocks = create_anniversary_blocks()
+    if blocks:
+        message = Message(blocks=blocks)
+        client.chat_postMessage(channel=CHANNEL_ID, blocks=message.build())
+
+
+if __name__ == "__main__":
+    send_message()

@@ -1,17 +1,30 @@
-[tool.poetry]
+[project]
 name = "kotatsu-news"
 version = "0.1.0"
-description = ""
-authors = ["Amane Suzuki <amane.suzu@gmail.com>"]
+description = "Add your description here"
+authors = [{ name = "Amane Suzuki", email = "amane.suzu@gmail.com" }]
+dependencies = [
+    "slack-sdk>=3.31.0",
+    "blockkit>=1.9.1",
+    "python-dateutil>=2.9.0.post0",
+]
 readme = "README.md"
-package-mode = false
-
-[tool.poetry.dependencies]
-python = "^3.12"
-slack-sdk = "^3.31.0"
-python-dotenv = "^1.0.1"
-
+requires-python = ">= 3.8"
 
 [build-system]
-requires = ["poetry-core"]
-build-backend = "poetry.core.masonry.api"
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[tool.rye]
+managed = true
+dev-dependencies = [
+    "ruff>=0.5.7",
+    "freezegun>=1.5.1",
+    "pytest>=8.3.2",
+]
+
+[tool.hatch.metadata]
+allow-direct-references = true
+
+[tool.hatch.build.targets.wheel]
+packages = ["src/kotatsu_news"]
