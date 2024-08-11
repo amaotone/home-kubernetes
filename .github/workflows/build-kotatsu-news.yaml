@@ -8,6 +8,8 @@ on:
       - "src/kotatsu-news/**"
   workflow_dispatch:
 
+permissions:
+  packages: write
 
 jobs:
   build:
