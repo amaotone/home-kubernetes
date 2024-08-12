@@ -5,7 +5,7 @@ metadata:
   namespace: kotatsu-news
 spec:
   timeZone: 'Asia/Tokyo'
-  schedule: "0 9 * * *" 
+  schedule: "45 8 * * *" 
   jobTemplate:
     spec:
       template:
