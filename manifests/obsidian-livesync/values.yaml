@@ -6,10 +6,9 @@ couchdb:
     accessModes:
       - ReadWriteMany
     size: 10Gi
-    storageClass: "nfs-client" 
   image:
     repository: couchdb
-    tag: 3.2.1
+    tag: 3.3.3
     pullPolicy: IfNotPresent
   service:
     enabled: true
