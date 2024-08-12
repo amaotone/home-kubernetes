@@ -35,7 +35,7 @@ jobs:
             type=sha,prefix=,suffix=,format=short
       
       - name: Push Image
-        uses: docker/build-push-action@v5
+        uses: docker/build-push-action@v6
         with:
           context: src/kotatsu-news
           push: true
