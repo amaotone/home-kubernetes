@@ -12,6 +12,10 @@
 annotated-types==0.7.0
     # via pydantic
 blockkit==1.9.1
+certifi==2024.7.4
+    # via requests
+charset-normalizer==3.3.2
+    # via requests
 dnspython==2.6.1
     # via email-validator
 email-validator==2.2.0
@@ -19,6 +23,7 @@ email-validator==2.2.0
 freezegun==1.5.1
 idna==3.7
     # via email-validator
+    # via requests
 iniconfig==2.0.0
     # via pytest
 packaging==24.1
@@ -32,6 +37,7 @@ pydantic-core==2.20.1
 pytest==8.3.2
 python-dateutil==2.9.0.post0
     # via freezegun
+requests==2.32.3
 ruff==0.5.7
 six==1.16.0
     # via python-dateutil
@@ -39,3 +45,5 @@ slack-sdk==3.31.0
 typing-extensions==4.12.2
     # via pydantic
     # via pydantic-core
+urllib3==2.2.2
+    # via requests
