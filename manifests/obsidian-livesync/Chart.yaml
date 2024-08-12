@@ -1,0 +1,7 @@
+apiVersion: v2
+name: obsidian-livesync
+version: 0.1.0
+dependencies:
+  - name: couchdb 
+    version: 4.5.6
+    repository: https://apache.github.io/couchdb-helm
