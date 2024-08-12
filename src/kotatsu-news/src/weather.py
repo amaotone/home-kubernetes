@@ -19,11 +19,25 @@ class Weather:
     temperature: float
 
     @property
-    def emoji(self):
+    def weather_emoji(self):
         return _get_weather_emoji(self.weather_id)
 
+    @property
+    def clock_emoji(self):
+        hour = self.dt.hour % 12
+        if hour == 0:
+            return "🕛"
+        elif hour == 3:
+            return "🕒"
+        elif hour == 6:
+            return "🕕"
+        elif hour == 9:
+            return "🕘"
+        else:
+            return ""
+
     def get_message(self):
-        return f"{self.emoji} {self.temperature:.0f}"
+        return f"{self.weather_emoji} {self.temperature:.0f}"
 
 
 def _get_weather_emoji(weather_id):
