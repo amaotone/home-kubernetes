@@ -29,4 +29,14 @@ spec:
                 secretKeyRef:
                   name: kotatsu-news-secret
                   key: ANNIVERSARY_DATE
+            - name: OPEN_WEATHER_MAP_API_KEY
+              valueFrom:
+                secretKeyRef:
+                  name: kotatsu-news-secret
+                  key: OPEN_WEATHER_MAP_API_KEY
+            - name: OPEN_WEATHER_MAP_ZIP
+              valueFrom:
+                secretKeyRef:
+                  name: kotatsu-news-secret
+                  key: OPEN_WEATHER_MAP_ZIP
           restartPolicy: OnFailure
