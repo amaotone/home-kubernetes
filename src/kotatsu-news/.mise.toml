@@ -1,6 +1,5 @@
 [tools]
 python = "3.12"
-poetry = "latest"
 rye = "latest"
 
 [env]

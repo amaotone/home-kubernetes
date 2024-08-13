@@ -1,10 +1,9 @@
-import json
 import os
 from dataclasses import dataclass
 from datetime import datetime, timedelta, timezone
 
 import requests
-from blockkit import Context, MarkdownText, Message, Section
+from blockkit import Context, MarkdownText, Section
 from blockkit.blocks import Block
 
 OPEN_WEATHER_MAP_API_KEY = os.getenv("OPEN_WEATHER_MAP_API_KEY")
