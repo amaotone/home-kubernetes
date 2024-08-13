@@ -23,3 +23,5 @@ ArgoCD の UI から `manifests/applications/root.yaml` をデプロイする
   - [x] Cloudflare Tunnels 経由で Grafana にアクセス
 - [x] Slack Bot のデプロイ
 - [x] renovate の設定
+- [ ] ログ収集の仕組みを作る
+- [ ] 
