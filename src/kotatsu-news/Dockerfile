@@ -5,4 +5,4 @@ COPY requirements.lock ./
 RUN PYTHONDONTWRITEBYTECODE=1 pip install --no-cache-dir -r requirements.lock
 
 COPY src src
-CMD ["python", "src/main.py"]
+CMD ["python", "-m", "src.main"]
