@@ -3,9 +3,8 @@ couchdb:
   createAdminSecret: false
   persistentVolume:
     enabled: true 
-    accessModes:
-      - ReadWriteMany
     size: 10Gi
+    storageClassName: local-storage
   image:
     repository: couchdb
     tag: 3.3.3
