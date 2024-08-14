@@ -1,20 +1,11 @@
 couchdb:
   clusterSize: 1
-  createAdminSecret: false
   persistentVolume:
     enabled: true 
     size: 10Gi
     accessModes:
       - ReadWriteOnce
     storageClassName: local-storage
-  image:
-    repository: couchdb
-    tag: 3.3.3
-    pullPolicy: IfNotPresent
-  service:
-    enabled: true
-    type: LoadBalancer 
-    externalPort: 80
   couchdbConfig:
     couchdb:
       single_node: true
