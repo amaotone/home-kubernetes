@@ -12,7 +12,7 @@ client = WebClient(token=SLACK_BOT_TOKEN)
 
 
 def send_message():
-    raw_blocks = [*create_anniversary_blocks(), *create_weather_blocks()]
+    raw_blocks = [*create_anniversary_blocks()]
 
     # 先頭以外にContextがあったらその前にDividerを挿入
     blocks = []
