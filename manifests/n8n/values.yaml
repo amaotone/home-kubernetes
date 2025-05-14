@@ -11,28 +11,111 @@ persistence:
   enabled: true
   size: 1Gi
 
-env:
-  - name: N8N_HOST
-    value: "https://n8n.kotapiku.com"
-  - name: NODE_ENV
-    value: "production"
-  - name: N8N_PROTOCOL
-    value: "https"
-  - name: WEBHOOK_TUNNEL_URL
-    value: "https://n8n.kotapiku.com"
-  - name: TZ
-    value: "Asia/Tokyo"
-  - name: N8N_SSL_CERT
-    value: "false"
-  - name: N8N_FORWARDED_HEADERS
-    value: "true"
-  - name: N8N_TRUSTED_PROXIES
-    value: "*"
-  - name: N8N_SECURITY_RESPONSE_HEADERS_ENABLED
-    value: "true"
-  - name: N8N_SECURITY_RESPONSE_HEADERS_CONTENT_SECURITY_POLICY
-    value: "upgrade-insecure-requests"
-  - name: N8N_SECURITY_RESPONSE_HEADERS_STRICT_TRANSPORT_SECURITY
-    value: "max-age=31536000; includeSubDomains"
-  - name: N8N_SECURE_COOKIE
-    value: "true" 
+ingress:
+  enabled: false
+
+main:
+  config:
+    n8n:
+      host: "n8n.kotapiku.com"
+      protocol: "https"
+      port: "443"
+      ssl_cert: "false"
+      forwarded_headers: "true"
+      trusted_proxies: "*"
+      security_response_headers_enabled: "true"
+      security_response_headers_content_security_policy: "upgrade-insecure-requests"
+      security_response_headers_strict_transport_security: "max-age=31536000; includeSubDomains"
+      secure_cookie: "true"
+    db:
+      type: "postgresdb"
+      postgresdb:
+        host: "postgresql.n8n.svc.cluster.local"
+        database: "n8n"
+        user: "n8n"
+        port: "5432"
+    timezone: "Asia/Tokyo"
+  secret:
+    db:
+      postgresdb:
+        password: "postgres-password"
+    n8n:
+      encryption_key: "change-me-to-secure-key"
+
+extraManifests:
+  - apiVersion: v1
+    kind: Secret
+    metadata:
+      name: postgresql-secret
+      namespace: n8n
+    type: Opaque
+    stringData:
+      POSTGRES_PASSWORD: "postgres-password"
+      POSTGRES_USER: "n8n"
+      POSTGRES_DB: "n8n"
+  - apiVersion: apps/v1
+    kind: Deployment
+    metadata:
+      name: postgresql
+      namespace: n8n
+    spec:
+      replicas: 1
+      selector:
+        matchLabels:
+          app: postgresql
+      template:
+        metadata:
+          labels:
+            app: postgresql
+        spec:
+          containers:
+            - name: postgresql
+              image: postgres:14-alpine
+              ports:
+                - containerPort: 5432
+              env:
+                - name: POSTGRES_PASSWORD
+                  valueFrom:
+                    secretKeyRef:
+                      name: postgresql-secret
+                      key: POSTGRES_PASSWORD
+                - name: POSTGRES_USER
+                  valueFrom:
+                    secretKeyRef:
+                      name: postgresql-secret
+                      key: POSTGRES_USER
+                - name: POSTGRES_DB
+                  valueFrom:
+                    secretKeyRef:
+                      name: postgresql-secret
+                      key: POSTGRES_DB
+              volumeMounts:
+                - name: postgresql-data
+                  mountPath: /var/lib/postgresql/data
+                  subPath: postgres
+          volumes:
+            - name: postgresql-data
+              persistentVolumeClaim:
+                claimName: postgresql-pvc
+  - apiVersion: v1
+    kind: Service
+    metadata:
+      name: postgresql
+      namespace: n8n
+    spec:
+      selector:
+        app: postgresql
+      ports:
+        - port: 5432
+          targetPort: 5432
+  - apiVersion: v1
+    kind: PersistentVolumeClaim
+    metadata:
+      name: postgresql-pvc
+      namespace: n8n
+    spec:
+      accessModes:
+        - ReadWriteOnce
+      resources:
+        requests:
+          storage: 4Gi 
