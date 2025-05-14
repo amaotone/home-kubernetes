@@ -21,4 +21,10 @@ env:
   - name: WEBHOOK_TUNNEL_URL
     value: "https://n8n.kotapiku.com"
   - name: TZ
-    value: "Asia/Tokyo" 
+    value: "Asia/Tokyo"
+  - name: N8N_SSL_CERT
+    value: "false"
+  - name: N8N_FORWARDED_HEADERS
+    value: "true"
+  - name: N8N_TRUSTED_PROXIES
+    value: "*" 
