@@ -1,121 +1,96 @@
 image:
-  tag: "1.28.0"
-
-service:
-  type: ClusterIP
-  annotations:
-    external-dns.alpha.kubernetes.io/hostname: n8n.kotapiku.com
-    external-dns.alpha.kubernetes.io/cloudflare-proxied: "true"
-
-persistence:
-  enabled: true
-  size: 1Gi
-
-ingress:
-  enabled: false
+  repository: n8nio/n8n
+  tag: "1.39.0"  # 特定のバージョンを指定
 
 main:
+  # n8nの基本設定
   config:
     n8n:
-      host: "n8n.kotapiku.com"
-      protocol: "https"
-      port: "443"
-      ssl_cert: "false"
-      forwarded_headers: "true"
-      trusted_proxies: "*"
-      security_response_headers_enabled: "true"
-      security_response_headers_content_security_policy: "upgrade-insecure-requests"
-      security_response_headers_strict_transport_security: "max-age=31536000; includeSubDomains"
-      secure_cookie: "true"
+      port: 5678
+      protocol: http
+      encryption_key: "replace-with-your-secret-key"  # 本番環境では必ず変更してください
+      hide_usage_page: true
     db:
-      type: "postgresdb"
+      type: postgresdb
       postgresdb:
-        host: "postgresql.n8n.svc.cluster.local"
-        database: "n8n"
-        user: "n8n"
-        port: "5432"
-    timezone: "Asia/Tokyo"
+        host: postgres  # PostgreSQLサービス名
+        port: 5432
+        database: n8n
+        user: n8n
+  
+  # セキュリティやデータベース接続情報などの機密情報
+  # 本番環境ではSealedSecretsなどで暗号化してください
   secret:
     db:
       postgresdb:
-        password: "postgres-password"
-    n8n:
-      encryption_key: "change-me-to-secure-key"
+        password: "change-me-in-production"  # 本番環境ではSealedSecretsなどで暗号化してください
+  
+  # Kubernetesリソース割り当て
+  resources:
+    limits:
+      cpu: 1000m
+      memory: 1Gi
+    requests:
+      cpu: 200m
+      memory: 512Mi
+  
+  # 永続化設定
+  persistence:
+    enabled: true
+    size: 1Gi
+  
+  # サービス設定
+  service:
+    type: ClusterIP
+    port: 443
+  
+  # ポッドのセキュリティ設定
+  podSecurityContext:
+    runAsNonRoot: true
+    runAsUser: 1000
+    runAsGroup: 1000
+    fsGroup: 1000
+  
+  # アプリケーションのヘルスチェック
+  livenessProbe:
+    httpGet:
+      path: /healthz
+      port: http
+    initialDelaySeconds: 30
+    periodSeconds: 10
+  
+  readinessProbe:
+    httpGet:
+      path: /healthz
+      port: http
+    initialDelaySeconds: 30
+    periodSeconds: 10
 
-extraManifests:
-  - apiVersion: v1
-    kind: Secret
-    metadata:
-      name: postgresql-secret
-      namespace: n8n
-    type: Opaque
-    stringData:
-      POSTGRES_PASSWORD: "postgres-password"
-      POSTGRES_USER: "n8n"
-      POSTGRES_DB: "n8n"
-  - apiVersion: apps/v1
-    kind: Deployment
-    metadata:
-      name: postgresql
-      namespace: n8n
-    spec:
-      replicas: 1
-      selector:
-        matchLabels:
-          app: postgresql
-      template:
-        metadata:
-          labels:
-            app: postgresql
-        spec:
-          containers:
-            - name: postgresql
-              image: postgres:14-alpine
-              ports:
-                - containerPort: 5432
-              env:
-                - name: POSTGRES_PASSWORD
-                  valueFrom:
-                    secretKeyRef:
-                      name: postgresql-secret
-                      key: POSTGRES_PASSWORD
-                - name: POSTGRES_USER
-                  valueFrom:
-                    secretKeyRef:
-                      name: postgresql-secret
-                      key: POSTGRES_USER
-                - name: POSTGRES_DB
-                  valueFrom:
-                    secretKeyRef:
-                      name: postgresql-secret
-                      key: POSTGRES_DB
-              volumeMounts:
-                - name: postgresql-data
-                  mountPath: /var/lib/postgresql/data
-                  subPath: postgres
-          volumes:
-            - name: postgresql-data
-              persistentVolumeClaim:
-                claimName: postgresql-pvc
-  - apiVersion: v1
-    kind: Service
-    metadata:
-      name: postgresql
-      namespace: n8n
-    spec:
-      selector:
-        app: postgresql
-      ports:
-        - port: 5432
-          targetPort: 5432
-  - apiVersion: v1
-    kind: PersistentVolumeClaim
-    metadata:
-      name: postgresql-pvc
-      namespace: n8n
-    spec:
-      accessModes:
-        - ReadWriteOnce
-      resources:
-        requests:
-          storage: 4Gi 
+# Ingressの設定
+ingress:
+  enabled: false
+  # 必要に応じて有効化してください
+  # className: "nginx"
+  # annotations:
+  #   cert-manager.io/cluster-issuer: "letsencrypt-prod"
+  # hosts:
+  #   - host: n8n.example.com
+  #     paths:
+  #       - path: /
+  #         pathType: Prefix
+  # tls:
+  #   - secretName: n8n-tls
+  #     hosts:
+  #       - n8n.example.com
+
+# ワーカーノード (スケーリング用)
+worker:
+  enabled: false
+
+# Webhookノード (スケーリング用)
+webhook:
+  enabled: false
+
+# Redis設定 (スケーリング時に必要)
+valkey:
+  enabled: false 
