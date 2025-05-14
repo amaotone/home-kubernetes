@@ -27,4 +27,12 @@ env:
   - name: N8N_FORWARDED_HEADERS
     value: "true"
   - name: N8N_TRUSTED_PROXIES
-    value: "*" 
+    value: "*"
+  - name: N8N_SECURITY_RESPONSE_HEADERS_ENABLED
+    value: "true"
+  - name: N8N_SECURITY_RESPONSE_HEADERS_CONTENT_SECURITY_POLICY
+    value: "upgrade-insecure-requests"
+  - name: N8N_SECURITY_RESPONSE_HEADERS_STRICT_TRANSPORT_SECURITY
+    value: "max-age=31536000; includeSubDomains"
+  - name: N8N_SECURE_COOKIE
+    value: "true" 
