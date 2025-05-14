@@ -1,0 +1,24 @@
+image:
+  tag: "1.28.0"
+
+service:
+  type: ClusterIP
+  annotations:
+    external-dns.alpha.kubernetes.io/hostname: n8n.kotapiku.com
+    external-dns.alpha.kubernetes.io/cloudflare-proxied: "true"
+
+persistence:
+  enabled: true
+  size: 1Gi
+
+env:
+  - name: N8N_HOST
+    value: "https://n8n.kotapiku.com"
+  - name: NODE_ENV
+    value: "production"
+  - name: N8N_PROTOCOL
+    value: "https"
+  - name: WEBHOOK_TUNNEL_URL
+    value: "https://n8n.kotapiku.com"
+  - name: TZ
+    value: "Asia/Tokyo" 
