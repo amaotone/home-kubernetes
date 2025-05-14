@@ -24,4 +24,4 @@ ArgoCD の UI から `manifests/applications/root.yaml` をデプロイする
 - [x] Slack Bot のデプロイ
 - [x] renovate の設定
 - [ ] ログ収集の仕組みを作る
-- [ ] 
+- [ ] n8n をセットアップする
