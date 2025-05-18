@@ -1,3 +1,7 @@
+_shared_config:
+  hostname: &hostname n8n.kotapiku.com
+  url: &url https://n8n.kotapiku.com
+
 image:
   repository: n8nio/n8n
   tag: "1.39.0"  # 特定のバージョンを指定
@@ -10,6 +14,7 @@ main:
       protocol: http
       encryption_key: "replace-with-your-secret-key"  # 本番環境では必ず変更してください
       hide_usage_page: true
+      editor_base_url: *url
     db:
       type: postgresdb
       postgresdb:
@@ -17,6 +22,7 @@ main:
         port: 5432
         database: n8n
         user: n8n
+    webhook_url: *url
   
   # セキュリティやデータベース接続情報などの機密情報
   # 本番環境ではSealedSecretsなどで暗号化してください
