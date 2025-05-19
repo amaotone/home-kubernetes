@@ -4,7 +4,7 @@ _shared_config:
 
 image:
   repository: n8nio/n8n
-  tag: "1.39.0"  # 特定のバージョンを指定
+  tag: "1.94.0"  # 特定のバージョンを指定
 
 main:
   # n8nの基本設定
