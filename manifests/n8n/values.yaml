@@ -23,7 +23,6 @@ main:
       protocol: https
       port: 443
       editor_base_url: *url
-      hide_usage_page: true
     webhook_url: *url
     generic:
       timezone: "Asia/Tokyo"
@@ -37,10 +36,8 @@ main:
   
   # 外部アクセス用の追加環境変数
   extraEnv:
-    WEBHOOK_URL:
-      value: *url
-    N8N_EDITOR_BASE_URL:
-      value: *url
+    WEBHOOK_URL: *url
+    N8N_EDITOR_BASE_URL: *url
   
   # セキュリティやデータベース接続情報などの機密情報
   # 本番環境ではSealedSecretsなどで暗号化してください
