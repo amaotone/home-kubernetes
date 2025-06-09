@@ -19,12 +19,12 @@ main:
   # n8nの基本設定
   config:
     n8n:
-      port: 5678
-      protocol: http
+      host: *hostname
+      protocol: https
+      port: 443
       encryption_key: "replace-with-your-secret-key"  # 本番環境では必ず変更してください
       hide_usage_page: true
       editor_base_url: *url
-      host: *hostname
     db:
       type: postgresdb
       postgresdb:
@@ -56,7 +56,7 @@ main:
   # サービス設定
   service:
     type: ClusterIP
-    port: 443
+    port: 5678
   
   # ポッドのセキュリティ設定
   podSecurityContext:
