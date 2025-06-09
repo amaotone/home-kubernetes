@@ -18,36 +18,24 @@ persistence:
 main:
   # n8nの基本設定
   config:
-    n8n:
-      host: *hostname
-      protocol: https
-      port: 443
-      encryption_key: "replace-with-your-secret-key"  # 本番環境では必ず変更してください
-      hide_usage_page: true
-      editor_base_url: *url
-    
-    # 追加の環境変数でコールバックURLを明示的に設定
-    extra_env:
-      N8N_HOST: *hostname
-      N8N_PROTOCOL: https
-      N8N_PORT: "443"
-    db:
-      type: postgresdb
-      postgresdb:
-        host: postgres  # PostgreSQLサービス名
-        port: 5432
-        database: n8n
-        user: n8n
-    webhook_url: *url
-    generic:
-      timezone: "Asia/Tokyo"
+    N8N_HOST: *hostname
+    N8N_PROTOCOL: https
+    N8N_PORT: "443"
+    N8N_EDITOR_BASE_URL: *url
+    WEBHOOK_URL: *url
+    N8N_HIDE_USAGE_PAGE: "true"
+    GENERIC_TIMEZONE: "Asia/Tokyo"
+    DB_TYPE: postgresdb
+    DB_POSTGRESDB_HOST: postgres
+    DB_POSTGRESDB_PORT: "5432"
+    DB_POSTGRESDB_DATABASE: n8n
+    DB_POSTGRESDB_USER: n8n
   
   # セキュリティやデータベース接続情報などの機密情報
   # 本番環境ではSealedSecretsなどで暗号化してください
   secret:
-    db:
-      postgresdb:
-        password: "change-me-in-production"  # 本番環境ではSealedSecretsなどで暗号化してください
+    N8N_ENCRYPTION_KEY: "replace-with-your-secret-key"  # 本番環境では必ず変更してください
+    DB_POSTGRESDB_PASSWORD: "change-me-in-production"  # 本番環境ではSealedSecretsなどで暗号化してください
   
   # Kubernetesリソース割り当て
   resources:
