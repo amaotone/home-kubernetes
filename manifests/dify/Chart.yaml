@@ -1,0 +1,9 @@
+apiVersion: v2
+name: dify
+description: Dify deployment for home Kubernetes
+type: application
+version: 0.1.0
+dependencies:
+  - name: dify
+    version: 0.8.2
+    repository: https://langgenius.github.io/dify-helm
