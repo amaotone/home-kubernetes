@@ -15,6 +15,7 @@ main:
       encryption_key: "replace-with-your-secret-key"  # 本番環境では必ず変更してください
       hide_usage_page: true
       editor_base_url: *url
+      host: *hostname
     db:
       type: postgresdb
       postgresdb:
@@ -23,6 +24,8 @@ main:
         database: n8n
         user: n8n
     webhook_url: *url
+    generic:
+      timezone: "Asia/Tokyo"
   
   # セキュリティやデータベース接続情報などの機密情報
   # 本番環境ではSealedSecretsなどで暗号化してください
