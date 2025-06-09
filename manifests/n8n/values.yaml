@@ -37,13 +37,9 @@ main:
   
   # 外部アクセス用の追加環境変数
   extraEnv:
-    N8N_HOST:
-      value: *hostname
-    N8N_PROTOCOL:
-      value: "https"
-    N8N_PORT:
-      value: "443"
     WEBHOOK_URL:
+      value: *url
+    N8N_EDITOR_BASE_URL:
       value: *url
   
   # セキュリティやデータベース接続情報などの機密情報
