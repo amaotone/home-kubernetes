@@ -1,158 +1,53 @@
-dify:
-  # Global configuration
-  global:
-    imageTag: "0.11.1"
-    edition: "SELF_HOSTED"
-    # IMPORTANT: Replace this with a secure random string in production
-    secretKey: "sk-changeme-please-generate-random-string"
-    storageType: "s3"
-    
-  # Frontend configuration
-  frontend:
-    replicaCount: 1
-    resources:
-      requests:
-        cpu: 100m
-        memory: 128Mi
-      limits:
-        cpu: 300m
-        memory: 256Mi
-    
-  # API configuration  
-  api:
-    replicaCount: 1
-    resources:
-      requests:
-        cpu: 200m
-        memory: 512Mi
-      limits:
-        cpu: 1000m
-        memory: 1Gi
-    env:
-      - name: LOG_LEVEL
-        value: "INFO"
-      - name: SECRET_KEY
-        value: "sk-changeme-please-generate-random-string"
-      - name: STORAGE_TYPE
-        value: "s3"
-      - name: S3_ENDPOINT
-        value: "http://dify-minio:9000"
-      - name: S3_BUCKET_NAME
-        value: "dify"
-      - name: S3_ACCESS_KEY
-        value: "minioadmin"
-      - name: S3_SECRET_KEY
-        value: "minioadmin"
-      - name: S3_REGION
-        value: "us-east-1"
-      - name: DATABASE_URL
-        value: "postgresql://postgres:changeme@dify-postgresql:5432/dify"
-      - name: REDIS_URL
-        value: "redis://:changeme@dify-redis-master:6379/0"
-    
-  # Worker configuration
-  worker:
-    replicaCount: 1
-    resources:
-      requests:
-        cpu: 200m
-        memory: 512Mi
-      limits:
-        cpu: 1000m
-        memory: 1Gi
-    env:
-      - name: LOG_LEVEL
-        value: "INFO"
-      - name: SECRET_KEY
-        value: "sk-changeme-please-generate-random-string"
-      - name: STORAGE_TYPE
-        value: "s3"
-      - name: S3_ENDPOINT
-        value: "http://dify-minio:9000"
-      - name: S3_BUCKET_NAME
-        value: "dify"
-      - name: S3_ACCESS_KEY
-        value: "minioadmin"
-      - name: S3_SECRET_KEY
-        value: "minioadmin"
-      - name: S3_REGION
-        value: "us-east-1"
-      - name: DATABASE_URL
-        value: "postgresql://postgres:changeme@dify-postgresql:5432/dify"
-      - name: REDIS_URL
-        value: "redis://:changeme@dify-redis-master:6379/0"
-    
-  # Sandbox configuration
-  sandbox:
-    enabled: true
-    replicaCount: 1
-    resources:
-      requests:
-        cpu: 100m
-        memory: 128Mi
-      limits:
-        cpu: 500m
-        memory: 512Mi
-    
-  # Plugin daemon configuration
-  plugin:
+# Minimal Dify configuration for home-kubernetes
+# External access via Cloudflared tunnel to dify.kotapiku.com
+
+# Service configuration for Cloudflared tunnel
+service:
+  type: ClusterIP
+  port: 80
+
+# Disable ingress (using Cloudflared instead)
+ingress:
+  enabled: false
+
+# Frontend configuration
+frontend:
+  replicaCount: 1
+  service:
+    type: ClusterIP
+    port: 3000
+
+# API configuration  
+api:
+  replicaCount: 1
+  service:
+    type: ClusterIP
+    port: 5001
+
+# Worker configuration
+worker:
+  replicaCount: 1
+
+# Minimal embedded dependencies
+redis:
+  enabled: true
+  architecture: standalone
+  auth:
     enabled: false
-    
-  # Ingress configuration
-  ingress:
-    enabled: false
-    
-  # Redis configuration (embedded)
-  redis:
-    enabled: true
-    architecture: standalone
-    auth:
-      enabled: true
-      password: "changeme"
-    master:
-      persistence:
-        enabled: true
-        size: 8Gi
-      resources:
-        requests:
-          cpu: 100m
-          memory: 128Mi
-        limits:
-          cpu: 500m
-          memory: 512Mi
-          
-  # PostgreSQL configuration (embedded)
-  postgresql:
-    enabled: true
-    auth:
-      postgresPassword: "changeme"
-      database: "dify"
-    primary:
-      persistence:
-        enabled: true
-        size: 20Gi
-      resources:
-        requests:
-          cpu: 250m
-          memory: 256Mi
-        limits:
-          cpu: 1000m
-          memory: 1Gi
-          
-  # MinIO configuration (embedded)
-  minio:
-    enabled: true
-    auth:
-      rootUser: "minioadmin"
-      rootPassword: "minioadmin"
-    defaultBuckets: "dify"
-    persistence:
-      enabled: true
-      size: 20Gi
-    resources:
-      requests:
-        cpu: 100m
-        memory: 128Mi
-      limits:
-        cpu: 500m
-        memory: 512Mi
+
+postgresql:
+  enabled: true
+  auth:
+    postgresPassword: "difypassword"
+    database: "dify"
+
+# Disable optional components
+sandbox:
+  enabled: false
+
+minio:
+  enabled: false
+
+# Use local storage instead of S3
+global:
+  storageType: "local"
