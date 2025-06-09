@@ -6,6 +6,15 @@ image:
   repository: n8nio/n8n
   tag: "1.39.0"  # 特定のバージョンを指定
 
+# 永続化設定 - n8nのデータ（アップロードファイル等）を保持
+persistence:
+  enabled: true
+  type: dynamic  # 動的にPVCを作成
+  accessModes:
+    - ReadWriteOnce
+  size: 10Gi  # アップロードファイル用に十分な容量を確保
+  # mountPath: /home/node/.n8n  # デフォルトのマウントパス
+
 main:
   # n8nの基本設定
   config:
@@ -43,10 +52,6 @@ main:
       cpu: 200m
       memory: 512Mi
   
-  # 永続化設定
-  persistence:
-    enabled: true
-    size: 1Gi
   
   # サービス設定
   service:
