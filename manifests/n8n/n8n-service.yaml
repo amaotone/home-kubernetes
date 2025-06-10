@@ -9,7 +9,7 @@ spec:
   type: ClusterIP
   ports:
     - name: http
-      port: 443
+      port: 80
       targetPort: 5678
       protocol: TCP
   selector:
