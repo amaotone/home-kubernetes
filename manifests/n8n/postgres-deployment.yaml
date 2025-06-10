@@ -1,0 +1,76 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  labels:
+    service: postgres-n8n
+  name: postgres
+  namespace: n8n
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      service: postgres-n8n
+  strategy:
+    type: Recreate
+  template:
+    metadata:
+      labels:
+        service: postgres-n8n
+    spec:
+      securityContext:
+        runAsNonRoot: true
+        runAsUser: 999
+        runAsGroup: 999
+        fsGroup: 999
+      containers:
+        - env:
+            - name: POSTGRES_DB
+              valueFrom:
+                secretKeyRef:
+                  name: postgres-secret
+                  key: POSTGRES_DB
+            - name: POSTGRES_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: postgres-secret
+                  key: POSTGRES_PASSWORD
+            - name: POSTGRES_USER
+              valueFrom:
+                secretKeyRef:
+                  name: postgres-secret
+                  key: POSTGRES_USER
+            - name: POSTGRES_NON_ROOT_USER
+              valueFrom:
+                secretKeyRef:
+                  name: postgres-secret
+                  key: POSTGRES_NON_ROOT_USER
+            - name: POSTGRES_NON_ROOT_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: postgres-secret
+                  key: POSTGRES_NON_ROOT_PASSWORD
+          image: postgres:15
+          name: postgres
+          ports:
+            - containerPort: 5432
+          resources:
+            limits:
+              cpu: 1000m
+              memory: 1Gi
+            requests:
+              cpu: 200m
+              memory: 512Mi
+          volumeMounts:
+            - mountPath: /var/lib/postgresql/data
+              name: postgresql-pv
+            - mountPath: /docker-entrypoint-initdb.d
+              name: init-data
+      restartPolicy: Always
+      volumes:
+        - name: postgresql-pv
+          persistentVolumeClaim:
+            claimName: postgresql-pv
+        - configMap:
+            defaultMode: 0755
+            name: init-data
+          name: init-data

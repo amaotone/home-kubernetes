@@ -9,9 +9,6 @@ spec:
     repoURL: https://github.com/amaotone/home-kubernetes.git
     targetRevision: HEAD
     path: manifests/n8n
-    helm:
-      valueFiles:
-        - values.yaml
   destination:
     server: https://kubernetes.default.svc
     namespace: n8n
