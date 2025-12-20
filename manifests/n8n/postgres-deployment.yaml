@@ -11,7 +11,10 @@ spec:
     matchLabels:
       service: postgres-n8n
   strategy:
-    type: Recreate
+    type: RollingUpdate
+    rollingUpdate:
+      maxSurge: 0
+      maxUnavailable: 1
   template:
     metadata:
       labels:
@@ -70,6 +73,24 @@ spec:
               name: postgresql-pv
             - mountPath: /docker-entrypoint-initdb.d
               name: init-data
+          livenessProbe:
+            exec:
+              command:
+                - /bin/sh
+                - -c
+                - pg_isready -U $POSTGRES_USER
+            initialDelaySeconds: 30
+            periodSeconds: 10
+            timeoutSeconds: 5
+          readinessProbe:
+            exec:
+              command:
+                - /bin/sh
+                - -c
+                - pg_isready -U $POSTGRES_USER
+            initialDelaySeconds: 5
+            periodSeconds: 5
+            timeoutSeconds: 3
       restartPolicy: Always
       volumes:
         - name: postgresql-pv

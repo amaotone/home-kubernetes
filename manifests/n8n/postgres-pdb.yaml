@@ -1,0 +1,10 @@
+apiVersion: policy/v1
+kind: PodDisruptionBudget
+metadata:
+  name: postgres-pdb
+  namespace: n8n
+spec:
+  minAvailable: 1
+  selector:
+    matchLabels:
+      service: postgres-n8n
