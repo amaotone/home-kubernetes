@@ -7,4 +7,21 @@
   kubernetes: {
     fileMatch: "^manifests/.*\\.yaml$",
   },
+  packageRules: [
+    {
+      // PostgreSQL major version updates require manual intervention
+      matchDatasources: ["docker"],
+      matchPackageNames: ["postgres"],
+      matchUpdateTypes: ["major"],
+      enabled: false,
+      description: "Disable auto-updates for PostgreSQL major versions - use manual upgrade procedure instead",
+    },
+    {
+      // Auto-merge PostgreSQL minor and patch updates
+      matchDatasources: ["docker"],
+      matchPackageNames: ["postgres"],
+      matchUpdateTypes: ["minor", "patch"],
+      automerge: true,
+    },
+  ],
 }

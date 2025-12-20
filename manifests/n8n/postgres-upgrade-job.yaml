@@ -1,0 +1,154 @@
+# PostgreSQL Upgrade Job Template
+# This job performs a safe PostgreSQL major version upgrade
+#
+# Usage:
+# 1. Update POSTGRES_NEW_VERSION to the target version
+# 2. Ensure you have a recent backup
+# 3. Apply this job: kubectl apply -f postgres-upgrade-job.yaml
+# 4. Monitor progress: kubectl logs -n n8n job/postgres-upgrade -f
+# 5. After successful upgrade, update postgres-deployment.yaml
+#
+# IMPORTANT: This is a template. Review and customize before use.
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: postgresql-pv-upgrade
+  namespace: n8n
+spec:
+  accessModes:
+    - ReadWriteOnce
+  resources:
+    requests:
+      storage: 5Gi
+  storageClassName: local-path
+---
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: postgres-upgrade
+  namespace: n8n
+spec:
+  backoffLimit: 0  # Don't retry on failure
+  ttlSecondsAfterFinished: 86400  # Keep job for 24 hours
+  template:
+    spec:
+      restartPolicy: Never
+      securityContext:
+        runAsNonRoot: true
+        runAsUser: 999
+        runAsGroup: 999
+        fsGroup: 999
+      initContainers:
+        # Step 1: Backup current database
+        - name: backup
+          image: postgres:15  # Current version
+          command:
+            - /bin/bash
+            - -c
+            - |
+              set -e
+              echo "Starting backup of PostgreSQL database..."
+
+              # Wait for old PostgreSQL to be ready
+              until pg_isready -h postgres -U $POSTGRES_USER; do
+                echo "Waiting for PostgreSQL..."
+                sleep 2
+              done
+
+              # Create backup
+              pg_dump -h postgres -U $POSTGRES_USER -d n8n -F c -f /backup/n8n_backup.dump
+
+              echo "Backup completed successfully"
+              ls -lh /backup/
+          env:
+            - name: POSTGRES_USER
+              valueFrom:
+                secretKeyRef:
+                  name: postgres-secret
+                  key: POSTGRES_USER
+            - name: PGPASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: postgres-secret
+                  key: POSTGRES_PASSWORD
+          volumeMounts:
+            - name: backup
+              mountPath: /backup
+      containers:
+        # Step 2: Restore to new version
+        - name: restore
+          image: postgres:16  # New version (UPDATE THIS)
+          command:
+            - /bin/bash
+            - -c
+            - |
+              set -e
+              echo "Starting PostgreSQL 16 for restore..."
+
+              # Initialize new data directory
+              export PGDATA=/var/lib/postgresql/data/pgdata
+              initdb -D $PGDATA
+
+              # Start PostgreSQL in background
+              pg_ctl -D $PGDATA -w start
+
+              # Create database and user
+              psql -U postgres -c "CREATE DATABASE n8n;"
+              psql -U postgres -c "CREATE USER $POSTGRES_NON_ROOT_USER WITH PASSWORD '$POSTGRES_NON_ROOT_PASSWORD';"
+              psql -U postgres -c "GRANT ALL PRIVILEGES ON DATABASE n8n TO $POSTGRES_NON_ROOT_USER;"
+              psql -U postgres -d n8n -c "GRANT ALL ON SCHEMA public TO $POSTGRES_NON_ROOT_USER;"
+
+              # Restore backup
+              echo "Restoring backup..."
+              pg_restore -U postgres -d n8n /backup/n8n_backup.dump || true
+
+              # Grant permissions
+              psql -U postgres -d n8n -c "GRANT ALL ON ALL TABLES IN SCHEMA public TO $POSTGRES_NON_ROOT_USER;"
+              psql -U postgres -d n8n -c "GRANT ALL ON ALL SEQUENCES IN SCHEMA public TO $POSTGRES_NON_ROOT_USER;"
+
+              # Verify restore
+              echo "Verifying restore..."
+              psql -U postgres -d n8n -c "\dt"
+
+              # Stop PostgreSQL
+              pg_ctl -D $PGDATA stop
+
+              echo "Upgrade completed successfully!"
+              echo "Next steps:"
+              echo "1. Scale down the old postgres deployment"
+              echo "2. Update postgres-deployment.yaml to use postgres:16"
+              echo "3. Update PVC reference to postgresql-pv-upgrade"
+              echo "4. Apply the changes"
+          env:
+            - name: POSTGRES_USER
+              valueFrom:
+                secretKeyRef:
+                  name: postgres-secret
+                  key: POSTGRES_USER
+            - name: POSTGRES_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: postgres-secret
+                  key: POSTGRES_PASSWORD
+            - name: POSTGRES_NON_ROOT_USER
+              valueFrom:
+                secretKeyRef:
+                  name: postgres-secret
+                  key: POSTGRES_NON_ROOT_USER
+            - name: POSTGRES_NON_ROOT_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: postgres-secret
+                  key: POSTGRES_NON_ROOT_PASSWORD
+          volumeMounts:
+            - name: backup
+              mountPath: /backup
+            - name: new-data
+              mountPath: /var/lib/postgresql/data
+      volumes:
+        - name: backup
+          emptyDir: {}
+        - name: new-data
+          persistentVolumeClaim:
+            claimName: postgresql-pv-upgrade
