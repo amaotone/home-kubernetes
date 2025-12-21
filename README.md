@@ -24,43 +24,20 @@ kubectl logs -n <namespace> <pod-name> --tail=100 -f
 
 ### シークレットの作成
 
-**推奨: Bitwarden Secrets Manager を使用**
+**Bitwarden Secrets Manager を使用**
 
 ```bash
 # 1. Bitwarden Web UI でシークレット作成
-# 2. BitwardenSecret CRD を作成
+# 2. Machine Accountに読み取り権限を付与
+# 3. BitwardenSecret CRD を作成
 kubectl apply -f manifests/<app-name>/<app>-bitwarden-secret.yaml
 
-# 3. 自動同期を確認
+# 4. 自動同期を確認
 kubectl get bitwardensecrets -A
+kubectl get secrets -n <namespace>
 ```
 
 **詳細なセットアップガイド**: [docs/bitwarden-secrets-manager-setup.md](docs/bitwarden-secrets-manager-setup.md)
-
-**レガシー: SealedSecrets (非推奨)**
-
-<details>
-<summary>SealedSecretsを使用する場合（クリックして展開）</summary>
-
-```bash
-# 1. Secret YAML を作成
-kubectl create secret generic my-secret \
-  --from-literal=username=admin \
-  --from-literal=password=secret123 \
-  --dry-run=client -o yaml > /tmp/secret.yaml
-
-# 2. Sealed Secret に変換
-kubeseal -f /tmp/secret.yaml -w manifests/<app-name>/sealed-secret.yaml \
-  --controller-name=sealed-secrets --controller-namespace=sealed-secrets
-
-# 3. Git にコミット
-git add manifests/<app-name>/sealed-secret.yaml
-git commit -m "feat: add sealed secret for <app-name>"
-```
-
-詳細: [docs/secret-management-guide.md](docs/secret-management-guide.md)
-
-</details>
 
 ## 前提条件
 
@@ -78,9 +55,6 @@ brew install helm
 
 # ArgoCD CLI (オプション)
 brew install argocd
-
-# kubeseal (レガシー - SealedSecrets使用時のみ)
-# brew install kubeseal
 ```
 
 ### kubectl context の設定
@@ -237,7 +211,6 @@ kubectl get app -n argocd <app-name> -o yaml
 │   │   ├── root.yaml      # ルートアプリケーション
 │   │   ├── bitwarden-operator.yaml  # Secrets Manager Operator
 │   │   ├── cloudflared.yaml
-│   │   ├── sealed-secrets.yaml  # (レガシー)
 │   │   └── n8n.yaml
 │   ├── bitwarden-operator/  # Bitwarden Operator 設定
 │   ├── cloudflared/       # Cloudflare Tunnels 設定
@@ -249,7 +222,6 @@ kubectl get app -n argocd <app-name> -o yaml
 │   ├── design-philosophy.md
 │   ├── postgres-upgrade-procedure.md
 │   ├── bitwarden-secrets-manager-setup.md  # Bitwarden完全ガイド
-│   ├── secret-management-guide.md  # SealedSecrets (レガシー)
 │   └── security-checklist.md
 ├── scripts/
 │   └── rotate-secrets.sh
@@ -281,17 +253,18 @@ kubectl logs -n argocd deployment/argocd-server
 argocd app sync <app-name> --force
 ```
 
-### Sealed Secret が復号化されない
+### BitwardenSecret が同期しない
 
 ```bash
-# Sealed Secrets Controller の状態確認
-kubectl get pods -n kube-system | grep sealed-secrets
+# BitwardenSecret の状態確認
+kubectl get bitwardensecrets -A
+kubectl describe bitwardensecret <secret-name> -n <namespace>
 
-# Controller のログ確認
-kubectl logs -n kube-system deployment/sealed-secrets-controller
+# Bitwarden Operator のログ確認
+kubectl logs -n sm-operator-system deployment/bw-sm-operator-controller-manager --tail=100
 
-# 証明書の確認
-kubeseal --fetch-cert
+# bw-auth-token が存在するか確認
+kubectl get secret bw-auth-token -n <namespace>
 ```
 
 ### Pod が起動しない
@@ -312,10 +285,9 @@ kubectl top pods -n <namespace>
 
 ### 運用ガイド
 
-- **[Bitwardenセットアップガイド](docs/bitwarden-secrets-manager-setup.md)**: Bitwarden Secrets Managerの完全ガイド（推奨）
+- **[Bitwardenセットアップガイド](docs/bitwarden-secrets-manager-setup.md)**: Bitwarden Secrets Managerの完全ガイド
 - **[PostgreSQLアップグレード手順](docs/postgres-upgrade-procedure.md)**: 安全なメジャーバージョンアップグレード
 - **[セキュリティチェックリスト](docs/security-checklist.md)**: セキュリティベストプラクティスの確認項目
-- **[SealedSecretsガイド](docs/secret-management-guide.md)**: レガシー - SealedSecrets使用時のみ
 
 ### 設計ドキュメント
 
@@ -324,7 +296,7 @@ kubectl top pods -n <namespace>
 ## 参考リンク
 
 - [ArgoCD Documentation](https://argo-cd.readthedocs.io/)
-- [Sealed Secrets](https://github.com/bitnami-labs/sealed-secrets)
+- [Bitwarden Secrets Manager](https://bitwarden.com/help/secrets-manager-kubernetes-operator/)
 - [Cloudflare Tunnels](https://developers.cloudflare.com/cloudflare-one/connections/connect-apps/)
 
 ## TODO
@@ -333,7 +305,7 @@ kubectl top pods -n <namespace>
   - [x] Bootstrap
   - [x] Cloudflare Tunnels 経由でアクセス
   - [x] App of Apps パターンの利用
-- [x] SealedSecrets を導入する
+- [x] Bitwarden Secrets Manager を導入する
 - [x] cloudflared をクラスタに載せる
 - [x] クラスタのモニタリング
   - [x] Prometheus + Grafana のデプロイ

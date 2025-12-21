@@ -5,28 +5,29 @@ This checklist helps ensure your cluster follows security best practices. Review
 ## Secret Management
 
 ### Initial Setup
-- [ ] sealed-secrets controller deployed and running
-- [ ] kubeseal CLI installed on all developer machines
-- [ ] Sealed-secrets master key backed up to secure offline storage
-- [ ] All plain Secret resources replaced with SealedSecrets
+- [x] Bitwarden Secrets Manager Operator deployed and running
+- [x] Bitwarden CLI installed for secret management
+- [x] Machine Account access token stored securely
+- [x] All secrets migrated to Bitwarden Secrets Manager
 - [ ] No secrets committed to Git in plain text
+- [x] `bw-auth-token` Secret deployed in each namespace
 
 ### PostgreSQL Secrets
-- [ ] `postgres-secret` converted to SealedSecret
-- [ ] Strong passwords generated (32+ characters, random)
-- [ ] Passwords stored in password manager (1Password/Bitwarden/etc.)
+- [x] `postgres-secret` managed via BitwardenSecret CRD
+- [x] Strong passwords generated and stored in Bitwarden
+- [x] Machine Account has read access to PostgreSQL secrets
 - [ ] Non-root user (n8n) has limited database permissions
 - [ ] Root postgres password never used by applications
 
 ### n8n Secrets
-- [ ] `n8n-secret` converted to SealedSecret
-- [ ] Encryption key generated with sufficient entropy (256-bit)
-- [ ] Encryption key stored in password manager
+- [x] `n8n-secret` managed via BitwardenSecret CRD
+- [x] Encryption key generated with sufficient entropy (256-bit)
+- [x] Encryption key stored in Bitwarden Secrets Manager
 - [ ] Encryption key never logged or exposed
 
 ### Cloudflare Secrets
-- [ ] `cloudflare-tunnel-token` converted to SealedSecret
-- [ ] Token stored in password manager
+- [x] `cloudflare-tunnel-token` managed via BitwardenSecret CRD
+- [x] Token stored in Bitwarden Secrets Manager
 - [ ] Old tokens revoked when rotated
 - [ ] Tunnel configured with least privilege access
 
@@ -222,7 +223,7 @@ This checklist helps ensure your cluster follows security best practices. Review
 - [ ] Dependency vulnerability alerts enabled (Renovate)
 
 ### Response Procedures
-- [ ] Secret compromise response plan: `docs/secret-management-guide.md#emergency-procedures`
+- [ ] Secret compromise response plan: `docs/bitwarden-secrets-manager-setup.md#emergency-procedures`
 - [ ] Pod compromise isolation procedure documented
 - [ ] Data breach notification plan (if applicable)
 - [ ] Post-incident review template
@@ -233,7 +234,7 @@ This checklist helps ensure your cluster follows security best practices. Review
 - [ ] Architecture diagram up to date
 - [ ] Security policies documented
 - [ ] Runbooks for operational tasks
-- [ ] Secret management guide: `docs/secret-management-guide.md`
+- [x] Secret management guide: `docs/bitwarden-secrets-manager-setup.md`
 - [ ] PostgreSQL upgrade procedure: `docs/postgres-upgrade-procedure.md`
 - [ ] Design philosophy: `docs/design-philosophy.md`
 
@@ -256,7 +257,7 @@ This checklist helps ensure your cluster follows security best practices. Review
 - [ ] Implement Prometheus + Grafana for monitoring
 - [ ] Set up centralized logging (Loki or ELK)
 - [ ] Configure alerting for critical events
-- [ ] Complete migration to SealedSecrets for all secrets
+- [x] Complete migration to Bitwarden Secrets Manager for all secrets
 - [ ] Implement automated backup schedule
 
 ### Medium-term (3-6 months)
@@ -305,4 +306,4 @@ _[List specific tasks to complete before next review]_
 - [NSA Kubernetes Hardening Guide](https://media.defense.gov/2022/Aug/29/2003066362/-1/-1/0/CTR_KUBERNETES_HARDENING_GUIDANCE_1.2_20220829.PDF)
 - [CIS Kubernetes Benchmark](https://www.cisecurity.org/benchmark/kubernetes)
 - [NIST Cybersecurity Framework](https://www.nist.gov/cyberframework)
-- [Sealed Secrets Best Practices](https://github.com/bitnami-labs/sealed-secrets#best-practices)
+- [Bitwarden Secrets Manager Kubernetes Operator](https://bitwarden.com/help/secrets-manager-kubernetes-operator/)

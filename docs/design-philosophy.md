@@ -22,8 +22,8 @@
 
 ### 3. セキュリティの確保
 
-- [SealedSecrets](https://github.com/bitnami-labs/sealed-secrets)を利用した機密情報の暗号化
-- 暗号化されたシークレットを Git リポジトリで安全に管理
+- [Bitwarden Secrets Manager](https://bitwarden.com/products/secrets-manager/)を利用した中央集権的なシークレット管理
+- BitwardenSecret CRD による Kubernetes への自動同期
 - Cloudflare Tunnels を利用した安全な外部アクセス
   - Ingress リソースは不要
   - 代わりに、cloudflared の Service リソースを参照する設定
@@ -56,9 +56,10 @@
 ├── manifests/         # Kubernetesマニフェスト
 │   ├── applications/  # ArgoCD Application定義
 │   │   ├── root.yaml  # ルートアプリケーション（App of Appsパターン）
+│   │   ├── bitwarden-operator.yaml # Bitwarden Secrets Manager Operator
 │   │   ├── cloudflared.yaml # Cloudflare Tunnels用アプリケーション
-│   │   ├── sealed-secrets.yaml # SealedSecrets用アプリケーション
 │   │   └── n8n.yaml   # n8nワークフロー用アプリケーション
+│   ├── bitwarden-operator/ # Bitwarden Operator設定
 │   ├── cloudflared/   # Cloudflare Tunnels関連設定
 │   └── n8n/           # n8nワークフロー関連設定
 ├── src/               # アプリケーションソースコード
@@ -84,8 +85,9 @@
 3. **シークレット管理**
 
    - 通常の Secret リソースは直接コミットしない
-   - kubeseal を使用して SealedSecret リソースを生成
-   - 既存の SealedSecret パターンを参考にする
+   - Bitwarden Secrets Manager で機密情報を管理
+   - BitwardenSecret CRD を使用して Kubernetes に自動同期
+   - 詳細は `docs/bitwarden-secrets-manager-setup.md` を参照
 
 4. **アプリケーション開発**
    - `src/`ディレクトリにアプリケーションコードを配置
@@ -101,8 +103,8 @@
    - 必要に応じてアプリケーションコードを`src/`に追加
 
 2. シークレット管理:
-   - kubeseal を使用して機密情報を暗号化
-   - SealedSecret リソースをコミット
+   - Bitwarden Web UI で機密情報を作成
+   - BitwardenSecret CRD をコミット
 
 ## ロードマップ
 

@@ -10,7 +10,7 @@ This is a GitOps-managed home Kubernetes cluster using ArgoCD. All cluster state
 
 1. **App of Apps Pattern**: The root application (`manifests/applications/root.yaml`) manages all other applications
 2. **No Traditional Ingress**: Uses Cloudflare Tunnels (cloudflared) for external access instead of Ingress resources
-3. **Sealed Secrets**: All secrets must be encrypted using kubeseal before committing. Never commit plain Secret resources
+3. **Bitwarden Secrets Manager**: All secrets are managed via Bitwarden Secrets Manager and synced using BitwardenSecret CRDs. Never commit plain Secret resources
 4. **Namespace Isolation**: Each application runs in its own namespace
 
 ## Development Commands
@@ -39,8 +39,11 @@ docker build -t kotatsu-news .
 # Apply ArgoCD applications
 kubectl apply -f manifests/applications/
 
-# Encrypt a secret (example)
-echo -n "mysecret" | kubectl create secret generic my-secret --dry-run=client --from-file=password=/dev/stdin -o yaml | kubeseal -o yaml > my-sealed-secret.yaml
+# Create a secret in Bitwarden (example)
+# 1. Create secret in Bitwarden Web UI
+# 2. Grant Machine Account read access
+# 3. Create BitwardenSecret CRD referencing the Bitwarden secret ID
+kubectl apply -f manifests/<app-name>/<app>-bitwarden-secret.yaml
 ```
 
 ## Important Conventions
