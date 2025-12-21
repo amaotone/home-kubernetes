@@ -13,6 +13,10 @@ spec:
     targetRevision: 1.1.0
     helm:
       valuesObject:
+        # Override the full name to keep Kubernetes resource names short
+        # This prevents the 63-character limit error while keeping the Application name descriptive
+        fullnameOverride: "bw-sm-operator"
+
         # IMPORTANT: Replace with your actual organization ID from Bitwarden
         # Get it from: Bitwarden Web Vault → Organization Settings → Organization ID
         organizationId: "9c14df47-6ef1-4a35-9381-aedf0113ef9d"
