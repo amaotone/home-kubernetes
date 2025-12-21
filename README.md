@@ -24,8 +24,26 @@ kubectl logs -n <namespace> <pod-name> --tail=100 -f
 
 ### シークレットの作成
 
+**推奨: Bitwarden Secrets Manager を使用**
+
 ```bash
-# 1. Secret YAML を作成 (例)
+# 1. Bitwarden Web UI でシークレット作成
+# 2. BitwardenSecret CRD を作成
+kubectl apply -f manifests/<app-name>/<app>-bitwarden-secret.yaml
+
+# 3. 自動同期を確認
+kubectl get bitwardensecrets -A
+```
+
+**詳細なセットアップガイド**: [docs/bitwarden-secrets-manager-setup.md](docs/bitwarden-secrets-manager-setup.md)
+
+**レガシー: SealedSecrets (非推奨)**
+
+<details>
+<summary>SealedSecretsを使用する場合（クリックして展開）</summary>
+
+```bash
+# 1. Secret YAML を作成
 kubectl create secret generic my-secret \
   --from-literal=username=admin \
   --from-literal=password=secret123 \
@@ -33,12 +51,16 @@ kubectl create secret generic my-secret \
 
 # 2. Sealed Secret に変換
 kubeseal -f /tmp/secret.yaml -w manifests/<app-name>/sealed-secret.yaml \
-  --controller-name=sealed-secrets --controller-namespace=kube-system
+  --controller-name=sealed-secrets --controller-namespace=sealed-secrets
 
 # 3. Git にコミット
 git add manifests/<app-name>/sealed-secret.yaml
 git commit -m "feat: add sealed secret for <app-name>"
 ```
+
+詳細: [docs/secret-management-guide.md](docs/secret-management-guide.md)
+
+</details>
 
 ## 前提条件
 
@@ -48,11 +70,17 @@ git commit -m "feat: add sealed secret for <app-name>"
 # kubectl (Kubernetes CLI)
 brew install kubectl
 
-# kubeseal (Sealed Secrets CLI)
-brew install kubeseal
+# Bitwarden CLI (シークレット管理)
+brew install bitwarden-cli
+
+# Helm (Kubernetes パッケージマネージャー)
+brew install helm
 
 # ArgoCD CLI (オプション)
 brew install argocd
+
+# kubeseal (レガシー - SealedSecrets使用時のみ)
+# brew install kubeseal
 ```
 
 ### kubectl context の設定
@@ -195,10 +223,10 @@ kubectl get app -n argocd <app-name> -o yaml
 ### 主要コンポーネント
 
 - **ArgoCD**: GitOps による継続的デリバリー
-- **Sealed Secrets**: 暗号化されたシークレット管理
+- **Bitwarden Secrets Manager**: 中央集権的なシークレット管理
 - **Cloudflare Tunnels**: Ingress なしでの外部アクセス
-- **Prometheus + Grafana**: モニタリング (計画中)
-- **n8n**: ワークフロー自動化 (計画中)
+- **Prometheus + Grafana**: モニタリング
+- **n8n**: ワークフロー自動化
 
 ### ディレクトリ構成
 
@@ -207,9 +235,11 @@ kubectl get app -n argocd <app-name> -o yaml
 ├── manifests/
 │   ├── applications/      # ArgoCD Application 定義 (App of Apps)
 │   │   ├── root.yaml      # ルートアプリケーション
+│   │   ├── bitwarden-operator.yaml  # Secrets Manager Operator
 │   │   ├── cloudflared.yaml
-│   │   ├── sealed-secrets.yaml
+│   │   ├── sealed-secrets.yaml  # (レガシー)
 │   │   └── n8n.yaml
+│   ├── bitwarden-operator/  # Bitwarden Operator 設定
 │   ├── cloudflared/       # Cloudflare Tunnels 設定
 │   ├── n8n/              # n8n ワークフロー設定
 │   └── <app-name>/       # 各アプリケーションのマニフェスト
@@ -217,16 +247,21 @@ kubectl get app -n argocd <app-name> -o yaml
 │   └── kotatsu-news/     # カスタムアプリケーションのソースコード
 ├── docs/
 │   ├── design-philosophy.md
-│   └── postgres-upgrade-procedure.md
+│   ├── postgres-upgrade-procedure.md
+│   ├── bitwarden-secrets-manager-setup.md  # Bitwarden完全ガイド
+│   ├── secret-management-guide.md  # SealedSecrets (レガシー)
+│   └── security-checklist.md
+├── scripts/
+│   └── rotate-secrets.sh
 └── renovate.json5        # 依存関係自動更新設定
 ```
 
 ### 設計原則
 
-1. **GitOps**: Git が唯一の信頼できる情報源
+1. **GitOps**: Git が唯一の信頼できる情報源（設定のみ、シークレットは除く）
 2. **宣言的管理**: すべてのリソースを YAML で定義
 3. **自動化**: ArgoCD の auto-sync と self-heal を活用
-4. **セキュリティ**: Sealed Secrets で機密情報を安全に管理
+4. **セキュリティ**: Bitwarden Secrets Manager で中央集権的なシークレット管理
 5. **シンプルさ**: Ingress の代わりに Cloudflare Tunnels を使用
 
 詳細は [docs/design-philosophy.md](docs/design-philosophy.md) を参照。
@@ -272,6 +307,19 @@ kubectl get events -n <namespace> --sort-by='.lastTimestamp'
 kubectl top nodes
 kubectl top pods -n <namespace>
 ```
+
+## ドキュメント
+
+### 運用ガイド
+
+- **[Bitwardenセットアップガイド](docs/bitwarden-secrets-manager-setup.md)**: Bitwarden Secrets Managerの完全ガイド（推奨）
+- **[PostgreSQLアップグレード手順](docs/postgres-upgrade-procedure.md)**: 安全なメジャーバージョンアップグレード
+- **[セキュリティチェックリスト](docs/security-checklist.md)**: セキュリティベストプラクティスの確認項目
+- **[SealedSecretsガイド](docs/secret-management-guide.md)**: レガシー - SealedSecrets使用時のみ
+
+### 設計ドキュメント
+
+- **[設計思想](docs/design-philosophy.md)**: クラスタ設計の原則と判断基準
 
 ## 参考リンク
 
