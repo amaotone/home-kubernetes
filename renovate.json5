@@ -1,26 +1,43 @@
 {
-  $schema: "https://docs.renovatebot.com/renovate-schema.json",
-  extends: ["config:recommended"],
+  $schema: 'https://docs.renovatebot.com/renovate-schema.json',
+  extends: [
+    'config:recommended',
+  ],
   argocd: {
-    fileMatch: "^manifests/applications/.*\\.yaml$",
+    managerFilePatterns: [
+      '/^manifests/applications/.*\\.yaml$/',
+    ],
   },
   kubernetes: {
-    fileMatch: "^manifests/.*\\.yaml$",
+    managerFilePatterns: [
+      '/^manifests/.*\\.yaml$/',
+    ],
   },
   packageRules: [
     {
-      // PostgreSQL major version updates require manual intervention
-      matchDatasources: ["docker"],
-      matchPackageNames: ["postgres"],
-      matchUpdateTypes: ["major"],
+      matchDatasources: [
+        'docker',
+      ],
+      matchPackageNames: [
+        'postgres',
+      ],
+      matchUpdateTypes: [
+        'major',
+      ],
       enabled: false,
-      description: "Disable auto-updates for PostgreSQL major versions - use manual upgrade procedure instead",
+      description: 'Disable auto-updates for PostgreSQL major versions - use manual upgrade procedure instead',
     },
     {
-      // Auto-merge PostgreSQL minor and patch updates
-      matchDatasources: ["docker"],
-      matchPackageNames: ["postgres"],
-      matchUpdateTypes: ["minor", "patch"],
+      matchDatasources: [
+        'docker',
+      ],
+      matchPackageNames: [
+        'postgres',
+      ],
+      matchUpdateTypes: [
+        'minor',
+        'patch',
+      ],
       automerge: true,
     },
   ],
