@@ -10,7 +10,7 @@ spec:
   source:
     repoURL: https://charts.bitwarden.com/
     chart: sm-operator
-    targetRevision: 1.1.0
+    targetRevision: 2.0.3
     helm:
       valuesObject:
         # Override the full name to keep Kubernetes resource names short
