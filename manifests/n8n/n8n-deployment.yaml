@@ -67,7 +67,7 @@ spec:
               value: https://n8n.kotapiku.com
             - name: GENERIC_TIMEZONE
               value: Asia/Tokyo
-          image: n8nio/n8n:2.4.5
+          image: n8nio/n8n:2.39.4
           name: n8n
           ports:
             - containerPort: 5678
